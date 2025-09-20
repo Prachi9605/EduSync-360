@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 class StudentProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="student_profile")
     roll_no = models.CharField(max_length=20, unique=True)
+    profile_pic = models.ImageField(upload_to='students/', null=True, blank=True)  # 👈 New field
     branch = models.CharField(max_length=50)
     year = models.IntegerField()  # e.g. 1,2,3,4
     course = models.CharField(max_length=100)

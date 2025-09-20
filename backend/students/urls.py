@@ -33,13 +33,13 @@ router.register(r'notices', NoticeViewSet, basename="notices")
 router.register(r'gallery', GalleryImageViewSet, basename="gallery")
 router.register(r'polls', PollViewSet, basename="polls")
 router.register(r'poll-options', PollOptionViewSet, basename="poll-options")
-router.register(r'timetable', TimetableViewSet, basename="timetable")
-router.register(r'fees', FeePaymentViewSet, basename="fees")
+router.register(r'timetables', TimetableViewSet, basename="timetables")
+router.register(r'fee-payments', FeePaymentViewSet, basename="fee-payments")
 
 urlpatterns = [
     path("", include(router.urls)),
 
     # Custom routes
-    path("login/", student_login, name="student_login"),
+    path("auth/login/", student_login, name="student_login"),
     path("tests/<int:test_id>/submit/", submit_test, name="submit_test"),
 ]
