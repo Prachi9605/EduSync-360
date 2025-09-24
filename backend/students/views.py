@@ -195,3 +195,32 @@ def submit_test(request, test_id):
     except (Test.DoesNotExist, StudentProfile.DoesNotExist):
         return Response({"error": "Invalid Test or Student"},
                         status=status.HTTP_404_NOT_FOUND)
+
+from django.contrib.auth.models import User
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+import random, string
+
+@api_view(['POST'])
+@permission_classes([AllowAny])   # 👈 override default IsAuthenticated
+def student_login(request):
+    username = request.data.get("username")
+    password = request.data.get("password")
+
+    if not username or not password:
+        return Response({"error": "Username and password required"}, status=400)
+
+    user = authenticate(username=username, password=password)
+    if not user:
+        return Response({"error": "Invalid credentials"}, status=401)
+
+    # Create or get token
+    token, created = Token.objects.get_or_create(user=user)
+
+    return Response({
+        "token": token.key,
+        "username": user.username,
+        "name": user.first_name,
+        "user_id": user.id
+    })

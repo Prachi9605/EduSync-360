@@ -1,33 +1,64 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route } from "react-router-dom"
+import Navbar from "./components/Navbar"
+import ProtectedRoute from "./components/ProtectedRoute"
+import { useAuth } from "./context/AuthContext"
+
+// Public pages
+import Home from "./pages/Home"
+import About from "./pages/About"
+import Courses from "./pages/Courses"
+import Results from "./pages/Results"
+import Admission from "./pages/Admission"
+import Contact from "./pages/Contact"
+import Login from "./pages/Login"
+
+// Dashboards
+import StudentDashboard from "./pages/dashboard/StudentDashboard"
+import TeacherDashboard from "./pages/dashboard/TeacherDashboard"
+import AdminDashboard from "./pages/dashboard/AdminDashboard"
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { user } = useAuth()
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Navbar />
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/results" element={<Results />} />
+        <Route path="/admission" element={<Admission />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/login" element={<Login />} />
+
+        {/* Protected Dashboards */}
+        <Route
+          path="/dashboard/student"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/teacher"
+          element={
+            <ProtectedRoute allowedRoles={["teacher"]}>
+              <TeacherDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
     </>
   )
 }

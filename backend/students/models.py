@@ -1,12 +1,14 @@
+from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import User
 
 
-# 1. Student Profile
 class StudentProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="student_profile")
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="student_profile"
+    )
     roll_no = models.CharField(max_length=20, unique=True)
-    profile_pic = models.ImageField(upload_to='students/', null=True, blank=True)  # 👈 New field
     branch = models.CharField(max_length=50)
     year = models.IntegerField()  # e.g. 1,2,3,4
     course = models.CharField(max_length=100)
@@ -34,7 +36,7 @@ class Attendance(models.Model):
     )
 
     class Meta:
-        unique_together = ("student", "date")  # prevent duplicate entries
+        unique_together = ("student", "date")
 
     def __str__(self):
         return f"{self.student.roll_no} - {self.date} - {self.status}"
@@ -56,8 +58,8 @@ class TestResult(models.Model):
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name="test_results")
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="results")
     marks_obtained = models.IntegerField()
-    rank = models.IntegerField(blank=True, null=True)  # calculated after submission
-    analysis = models.TextField(blank=True, null=True)  # e.g. strengths/weaknesses
+    rank = models.IntegerField(blank=True, null=True)
+    analysis = models.TextField(blank=True, null=True)
 
     class Meta:
         unique_together = ("student", "test")
@@ -86,7 +88,12 @@ class LeaveApplication(models.Model):
 # 6. Study Material
 class StudyMaterial(models.Model):
     subject = models.CharField(max_length=100)
-    uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
     file = models.FileField(upload_to="study_materials/")
     uploaded_on = models.DateTimeField(auto_now_add=True)
 
@@ -104,10 +111,15 @@ class Todo(models.Model):
     def __str__(self):
         return f"{self.student.roll_no} - {self.task[:20]}"
 
-# 1. Ask Seniors (Q&A / DM)
+
+# 8. Ask Seniors
 class Question(models.Model):
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name="questions")
-    senior = models.ForeignKey(User, on_delete=models.CASCADE, related_name="senior_responses")  # target senior
+    senior = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="senior_responses"
+    )
     question_text = models.TextField()
     answer_text = models.TextField(blank=True, null=True)
     asked_on = models.DateTimeField(auto_now_add=True)
@@ -117,7 +129,7 @@ class Question(models.Model):
         return f"Q by {self.student.roll_no} → {self.senior.username}"
 
 
-# 2. Notice Board
+# 9. Notice Board
 class Notice(models.Model):
     NOTICE_TYPE = [
         ("CLASS", "Class"),
@@ -132,22 +144,32 @@ class Notice(models.Model):
         return f"{self.notice_type} Notice: {self.title}"
 
 
-# 3. Gallery
+# 10. Gallery
 class GalleryImage(models.Model):
     event_name = models.CharField(max_length=200)
     caption = models.CharField(max_length=255, blank=True, null=True)
     image = models.ImageField(upload_to="gallery/")
-    uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
     uploaded_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.event_name} - {self.caption or ''}"
 
 
-# 4. Poll / Voting System
+# 11. Poll / Voting System
 class Poll(models.Model):
     question = models.CharField(max_length=255)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
     created_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -163,7 +185,7 @@ class PollOption(models.Model):
         return f"{self.option_text} ({self.poll.question})"
 
 
-# 5. Timetable
+# 12. Timetable
 class Timetable(models.Model):
     branch = models.CharField(max_length=100)
     year = models.IntegerField()
@@ -183,7 +205,7 @@ class Timetable(models.Model):
         return f"{self.branch} Y{self.year} - {self.subject} ({self.day_of_week})"
 
 
-# 6. Fee Payment (Optional: history tracking)
+# 13. Fee Payment
 class FeePayment(models.Model):
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name="fee_payments")
     amount = models.DecimalField(max_digits=10, decimal_places=2)

@@ -5,14 +5,13 @@ Django settings for edusync360 project.
 from pathlib import Path
 import os
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-49pr^(#jt%vh)&d_b#&y$vpd#zgf(3ysz7fv1mie18rk$*3_#@'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -34,6 +33,7 @@ INSTALLED_APPS = [
     'teachers',
     'adminpanel',
     'core',
+    'accounts',   # 👈 added for custom user model
 ]
 
 MIDDLEWARE = [
@@ -106,6 +106,10 @@ LOGIN_URL = '/login/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# Custom User model 👇
+AUTH_USER_MODEL = "accounts.User"
+
+
 # CORS SETTINGS
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",   # CRA
@@ -113,12 +117,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",   # Vite
     "http://127.0.0.1:5173",
 ]
-
+CORS_ALLOW_ALL_ORIGINS = True
 # For quick dev only (not for production):
 # CORS_ALLOW_ALL_ORIGINS = True
 
 
-# Django REST framework config (optional, recommended)
+# Django REST framework config
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
@@ -128,3 +132,13 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ]
 }
+
+
+
+# Email config
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # from .env
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # from .env
